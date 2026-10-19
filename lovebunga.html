@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mawar Pink Tangkai Panjang 3D 🌹</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; background: #140a12; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  .vignette {
+    position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(8,3,7,0.92) 100%);
+  }
+
+  .hud {
+    position: fixed; left: 0; right: 0; bottom: 26px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    pointer-events: none; user-select: none;
+    animation: fade 2s ease 0.8s both;
+  }
+  .title {
+    font-family: 'Georgia', serif;
+    font-size: clamp(22px, 4vw, 34px);
+    font-weight: 400; letter-spacing: 0.3em; text-transform: uppercase;
+    color: #ffd6e8; padding-left: 0.3em;
+    text-shadow: 0 0 24px rgba(255,80,170,0.9), 0 0 70px rgba(255,60,150,0.55);
+  }
+  .sub {
+    font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: rgba(255,200,225,0.5);
+  }
+  @keyframes fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="vignette"></div>
+<div class="hud">
+  <div class="title">Pink Rose</div>
+  <div class="sub">drag · scroll · enjoy</div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* ═══════════════ RENDERER ═══════════════ */
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+app.appendChild(renderer.domElement);
+
+/* ═══════════════ SCENE / CAMERA ═══════════════ */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x140a12);
+scene.fog = new THREE.FogExp2(0x140a12, 0.035);
+
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(2.2, -1.2, 9.5);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, -2.8, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.055;
+controls.minDistance = 3.5;
+controls.maxDistance = 22;
+controls.maxPolarAngle = Math.PI * 0.92;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.6;
+
+/* ═══════════════ ENVIRONMENT ═══════════════ */
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+pmrem.dispose();
+
+/* ═══════════════ LIGHTS ═══════════════ */
+scene.add(new THREE.HemisphereLight(0xffd6ea, 0x2b0f1e, 0.65));
+
+const keyLight = new THREE.DirectionalLight(0xfff2f8, 2.8);
+keyLight.position.set(6, 10, 7);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.set(2048, 2048);
+keyLight.shadow.camera.near = 1;
+keyLight.shadow.camera.far = 50;
+keyLight.shadow.camera.left = -8;
+keyLight.shadow.camera.right = 8;
+keyLight.shadow.camera.top = 8;
+keyLight.shadow.camera.bottom = -8;
+keyLight.shadow.bias = -0.0006;
+keyLight.shadow.radius = 4;
+scene.add(keyLight);
+
+const rimLight = new THREE.DirectionalLight(0xff1f7a, 2.6);
+rimLight.position.set(-7, 3, -6);
+scene.add(rimLight);
+
+const fillLight = new THREE.PointLight(0xff4d95, 18, 20, 2);
+fillLight.position.set(2, 2, 5);
+scene.add(fillLight);
+
+const underGlow = new THREE.PointLight(0xff0a5e, 11, 14, 2);
+underGlow.position.set(-2.4, -3.2, 2.6);
+scene.add(underGlow);
+
+const topGlow = new THREE.PointLight(0xff9ec7, 10, 14, 2);
+topGlow.position.set(0, 4.5, 1.5);
+scene.add(topGlow);
+
+const bottomGlow = new THREE.PointLight(0xff5fa2, 7, 16, 2);
+bottomGlow.position.set(0, -7.0, 1.5);
+scene.add(bottomGlow);
+
+const popLight = new THREE.PointLight(0xff2e86, 12, 8, 2);
+popLight.position.set(0.6, 0.8, 2.5);
+scene.add(popLight);
+
+/* ═══════════════ GROUND SHADOW ═══════════════ */
+const shadowPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 60),
+  new THREE.ShadowMaterial({ color: 0x000000, opacity: 0.42 })
+);
+shadowPlane.rotation.x = -Math.PI / 2;
+shadowPlane.position.y = -7.2;
+shadowPlane.receiveShadow = true;
+scene.add(shadowPlane);
+
+/* ═══════════════ PETAL GEOMETRY ═══════════════ */
+function makePetalGeometry({ length = 1.0, width = 0.6, rise = 0.3, cup = 0.8, tipCurl = 0.2, segU = 22, segV = 14 } = {}) {
+  const pos = [], uv = [], idx = [];
+
+  for (let i = 0; i <= segU; i++) {
+    const u = 0.012 + 0.988 * (i / segU);
+    const w = width * Math.pow(u, 0.42) * Math.sqrt(Math.max(0, 1 - Math.pow(u, 9)));
+
+    for (let j = 0; j <= segV; j++) {
+      const v = (j / segV) * 2 - 1;
+      const x = v * w;
+      let y = rise * Math.pow(u, 1.7) - tipCurl * Math.pow(u, 4.0);
+      let z = length * u;
+      const cu = v * w;
+      y += cup * cu * cu;
+      z -= 0.35 * cup * cu * cu;
+      pos.push(x, y, z);
+      uv.push((v + 1) * 0.5, u);
+    }
+  }
+
+  for (let i = 0; i < segU; i++) {
+    for (let j = 0; j < segV; j++) {
+      const a = i * (segV + 1) + j;
+      const b = a + 1;
+      const c = a + (segV + 1);
+      const d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+/* ═══════════════ LEAF GEOMETRY ═══════════════ */
+function makeLeafGeometry({ length = 1.0, width = 0.36, segU = 20, segV = 12 } = {}) {
+  const pos = [], uv = [], idx = [];
+  for (let i = 0; i <= segU; i++) {
+    const u = i / segU;
+    const w = width * Math.pow(Math.sin(Math.PI * Math.pow(u, 0.8)), 0.9);
+    for (let j = 0; j <= segV; j++) {
+      const v = (j / segV) * 2 - 1;
+      const x = v * w;
+      const y = 0.22 * Math.sin(Math.PI * u) + 0.55 * (v * w) * (v * w);
+      const z = length * u - 0.12 * u * u;
+      pos.push(x, y, z);
+      uv.push((v + 1) * 0.5, u);
+    }
+  }
+  for (let i = 0; i < segU; i++) {
+    for (let j = 0; j < segV; j++) {
+      const a = i * (segV + 1) + j;
+      const b = a + 1;
+      const c = a + (segV + 1);
+      const d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+/* ═══════════════ PLANT ROOT ═══════════════ */
+const plant = new THREE.Group();
+scene.add(plant);
+
+/* ═══════════════ STEM (PANJANG) ═══════════════ */
+const stemCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3( 0.00,  -0.02,  0.00),
+  new THREE.Vector3( 0.10,  -1.10,  0.06),
+  new THREE.Vector3( 0.02,  -2.30, -0.05),
+  new THREE.Vector3(-0.14,  -3.60,  0.10),
+  new THREE.Vector3(-0.04,  -4.90,  0.04),
+  new THREE.Vector3( 0.16,  -6.20, -0.08),
+  new THREE.Vector3( 0.05,  -7.00,  0.00)
+]);
+
+const stemMat = new THREE.MeshPhysicalMaterial({
+  color: 0x35662f,
+  roughness: 0.7,
+  metalness: 0.02,
+  clearcoat: 0.25,
+  clearcoatRoughness: 0.6,
+  sheen: 0.4,
+  sheenColor: new THREE.Color(0x9fe08a)
+});
+
+const stem = new THREE.Mesh(
+  new THREE.TubeGeometry(stemCurve, 140, 0.062, 12, false),
+  stemMat
+);
+stem.castShadow = true;
+stem.receiveShadow = true;
+plant.add(stem);
+
+/* ═══════════════ DAUN SEPANJANG TANGKAI ═══════════════ */
+const leafGeoBig = makeLeafGeometry({ length: 1.15, width: 0.36 });
+const leafGeoMid = makeLeafGeometry({ length: 0.95, width: 0.30 });
+const leafGeoSml = makeLeafGeometry({ length: 0.72, width: 0.24 });
+
+const leafMat = new THREE.MeshPhysicalMaterial({
+  color: 0x2f6b3a,
+  roughness: 0.55,
+  metalness: 0.0,
+  clearcoat: 0.45,
+  clearcoatRoughness: 0.5,
+  sheen: 0.6,
+  sheenColor: new THREE.Color(0x9fe08a),
+  side: THREE.DoubleSide,
+  envMapIntensity: 0.9
+});
+
+const leafSpots = [
+  { u: 0.10, angle:  0.8, tilt: -0.42, scale: 0.72, geo: leafGeoSml },
+  { u: 0.17, angle:  3.1, tilt: -0.50, scale: 0.80, geo: leafGeoMid },
+  { u: 0.27, angle:  5.2, tilt: -0.35, scale: 0.95, geo: leafGeoBig },
+  { u: 0.37, angle:  1.6, tilt: -0.55, scale: 1.00, geo: leafGeoBig },
+  { u: 0.48, angle:  4.4, tilt: -0.40, scale: 0.90, geo: leafGeoMid },
+  { u: 0.60, angle:  0.2, tilt: -0.52, scale: 1.02, geo: leafGeoBig },
+  { u: 0.71, angle:  2.9, tilt: -0.38, scale: 0.88, geo: leafGeoMid },
+  { u: 0.83, angle:  5.6, tilt: -0.48, scale: 0.80, geo: leafGeoMid }
+];
+
+for (const s of leafSpots) {
+  const p = stemCurve.getPointAt(s.u);
+
+  const lg = new THREE.Group();
+  lg.position.copy(p);
+  lg.rotation.y = s.angle;
+
+  const lm = new THREE.Mesh(s.geo, leafMat);
+  lm.rotation.x = s.tilt;
+  lm.position.z = 0.05;
+  lm.scale.setScalar(s.scale);
+  lm.castShadow = true;
+  lm.receiveShadow = true;
+  lg.add(lm);
+
+  const petioleCurve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0, 0.05, 0.06),
+    new THREE.Vector3(0, 0.05, 0.16)
+  );
+  const petiole = new THREE.Mesh(
+    new THREE.TubeGeometry(petioleCurve, 10, 0.018, 6, false),
+    stemMat
+  );
+  petiole.castShadow = true;
+  lg.add(petiole);
+
+  plant.add(lg);
+}
+
+/* ═══════════════ BUNGA MAWAR ═══════════════ */
+const flower = new THREE.Group();
+plant.add(flower);
+
+const PETAL_COUNT = 48;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
+const petalPalette = [
+  0xff1070,
+  0xff2d8a,
+  0xff4fa3,
+  0xff6bb4
+];
+
+for (let i = 0; i < PETAL_COUNT; i++) {
+  const t = i / (PETAL_COUNT - 1);
+  const open = Math.pow(t, 0.8);
+
+  const geo = makePetalGeometry({
+    length:  0.62 + 0.66 * open,
+    width:   0.34 + 0.42 * open,
+    rise:    0.32 - 0.22 * open,
+    cup:     0.95 - 0.55 * open,
+    tipCurl: 0.02 + 0.52 * open,
+    segU:    22,
+    segV:    14
+  });
+
+  const paletteIndex = Math.min(petalPalette.length - 1, Math.floor(open * petalPalette.length));
+  const baseColor = new THREE.Color(petalPalette[paletteIndex]);
+  const color = baseColor.clone().offsetHSL(
+    (Math.random() - 0.5) * 0.015,
+    (Math.random() - 0.5) * 0.04,
+    (Math.random() - 0.5) * 0.03
+  );
+
+  const mat = new THREE.MeshPhysicalMaterial({
+    color,
+    emissive: new THREE.Color(0xff0a6a),
+    emissiveIntensity: 0.09,
+    roughness: 0.5,
+    metalness: 0.0,
+    clearcoat: 0.55,
+    clearcoatRoughness: 0.45,
+    sheen: 1.0,
+    sheenColor: new THREE.Color(0xff3d8a),
+    sheenRoughness: 0.35,
+    side: THREE.DoubleSide,
+    envMapIntensity: 1.35
+  });
+
+  const petal = new THREE.Mesh(geo, mat);
+  petal.castShadow = true;
+  petal.receiveShadow = true;
+
+  const pivot = new THREE.Group();
+  pivot.rotation.y = i * GOLDEN_ANGLE;
+  pivot.add(petal);
+
+  petal.rotation.x = -1.28 + 1.15 * Math.pow(open, 0.85);
+  petal.rotation.x += (Math.random() - 0.5) * 0.11;
+  petal.rotation.z  = (Math.random() - 0.5) * 0.16;
+  petal.position.y = 0.10 * (1 - open);
+  petal.scale.setScalar(0.94 + Math.random() * 0.12);
+
+  flower.add(pivot);
+}
+
+/* inti bunga */
+const core = new THREE.Mesh(
+  new THREE.SphereGeometry(0.16, 20, 16),
+  new THREE.MeshPhysicalMaterial({
+    color: 0xe01a72,
+    emissive: new THREE.Color(0xff0055),
+    emissiveIntensity: 0.12,
+    roughness: 0.65,
+    sheen: 1.0,
+    sheenColor: new THREE.Color(0xff5fa2),
+    side: THREE.DoubleSide
+  })
+);
+core.position.y = 0.26;
+core.castShadow = true;
+flower.add(core);
+
+/* receptacle (dasar bunga) */
+const receptacle = new THREE.Mesh(
+  new THREE.SphereGeometry(0.19, 20, 16),
+  new THREE.MeshStandardMaterial({ color: 0x3d6b3a, roughness: 0.75 })
+);
+receptacle.scale.set(1, 0.9, 1);
+receptacle.position.y = -0.02;
+receptacle.castShadow = true;
+plant.add(receptacle);
+
+/* sepal */
+const sepalGeo = makeLeafGeometry({ length: 0.55, width: 0.13 });
+const sepalMat = new THREE.MeshStandardMaterial({
+  color: 0x3a7038, roughness: 0.7, side: THREE.DoubleSide
+});
+
+for (let i = 0; i < 5; i++) {
+  const s = new THREE.Mesh(sepalGeo, sepalMat);
+  const g = new THREE.Group();
+  g.rotation.y = (i / 5) * Math.PI * 2 + 0.3;
+  s.rotation.x = -1.15;
+  s.position.y = 0.02;
+  s.castShadow = true;
+  g.add(s);
+  plant.add(g);
+}
+
+/* ═══════════════ LOVE / HEART PARTICLES ═══════════════ */
+function makeHeartTexture() {
+  const s = 128;
+  const c = document.createElement('canvas');
+  c.width = c.height = s;
+  const ctx = c.getContext('2d');
+  const cx = s / 2;
+  const cy = s / 2;
+
+  // path bentuk hati
+  ctx.beginPath();
+  ctx.moveTo(cx, s * 0.86);
+  ctx.bezierCurveTo(s * 0.02, s * 0.55, s * 0.05, s * 0.10, cx, s * 0.30);
+  ctx.bezierCurveTo(s * 0.95, s * 0.10, s * 0.98, s * 0.55, cx, s * 0.86);
+  ctx.closePath();
+
+  // gradient pink
+  const g = ctx.createRadialGradient(cx, s * 0.38, s * 0.02, cx, s * 0.5, s * 0.55);
+  g.addColorStop(0.0, '#ffe0ee');
+  g.addColorStop(0.35, '#ff7ab5');
+  g.addColorStop(0.75, '#ff2d8a');
+  g.addColorStop(1.0, '#e00060');
+  ctx.fillStyle = g;
+  ctx.fill();
+
+  // outline glow
+  ctx.strokeStyle = 'rgba(255,220,235,0.95)';
+  ctx.lineWidth = s * 0.035;
+  ctx.stroke();
+
+  // highlight kecil di kiri atas biar 3D
+  const hl = ctx.createRadialGradient(s * 0.38, s * 0.32, 0, s * 0.38, s * 0.32, s * 0.14);
+  hl.addColorStop(0, 'rgba(255,255,255,0.85)');
+  hl.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hl;
+  ctx.beginPath();
+  ctx.ellipse(s * 0.38, s * 0.34, s * 0.12, s * 0.08, -0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.anisotropy = 4;
+  return tex;
+}
+
+const HEART_COUNT = 220;
+const heartPositions = new Float32Array(HEART_COUNT * 3);
+const heartBase = new Float32Array(HEART_COUNT * 3);
+const heartPhase = new Float32Array(HEART_COUNT);
+const heartSpeed = new Float32Array(HEART_COUNT);
+const heartSizes = new Float32Array(HEART_COUNT);
+
+for (let i = 0; i < HEART_COUNT; i++) {
+  const r = 1.6 + Math.random() * 5.5;
+  const th = Math.random() * Math.PI * 2;
+  const ph = Math.acos(2 * Math.random() - 1);
+
+  const x = r * Math.sin(ph) * Math.cos(th);
+  const y = r * Math.cos(ph) * 1.4 - 3.2;
+  const z = r * Math.sin(ph) * Math.sin(th);
+
+  heartPositions[i * 3 + 0] = x;
+  heartPositions[i * 3 + 1] = y;
+  heartPositions[i * 3 + 2] = z;
+
+  heartBase[i * 3 + 0] = x;
+  heartBase[i * 3 + 1] = y;
+  heartBase[i * 3 + 2] = z;
+
+  heartPhase[i] = Math.random() * Math.PI * 2;
+  heartSpeed[i] = 0.35 + Math.random() * 0.75;
+  heartSizes[i] = 0.7 + Math.random() * 0.9;
+}
+
+const heartGeo = new THREE.BufferGeometry();
+heartGeo.setAttribute('position', new THREE.BufferAttribute(heartPositions, 3));
+
+const heartMat = new THREE.PointsMaterial({
+  size: 0.32,
+  map: makeHeartTexture(),
+  transparent: true,
+  opacity: 0.95,
+  depthWrite: false,
+  blending: THREE.NormalBlending,
+  sizeAttenuation: true,
+  color: 0xffffff,
+  alphaTest: 0.02
+});
+
+const hearts = new THREE.Points(heartGeo, heartMat);
+scene.add(hearts);
+
+/* ═══════════════ RESIZE ═══════════════ */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ═══════════════ ANIMATION ═══════════════ */
+const clock = new THREE.Clock();
+const heartPosAttr = heartGeo.attributes.position;
+
+function animate() {
+  const t = clock.getElapsedTime();
+
+  controls.update();
+
+  // goyangan tanaman
+  plant.rotation.z = Math.sin(t * 0.5) * 0.022;
+  plant.rotation.x = Math.cos(t * 0.4) * 0.013;
+
+  // bunga berdenyut
+  flower.rotation.y = Math.sin(t * 0.3) * 0.045;
+  flower.scale.setScalar(1 + Math.sin(t * 0.9) * 0.006);
+
+  // HEARTS: orbit + bob per partikel
+  for (let i = 0; i < HEART_COUNT; i++) {
+    const ph = heartPhase[i];
+    const sp = heartSpeed[i];
+
+    heartPosAttr.array[i * 3 + 0] = heartBase[i * 3 + 0] + Math.sin(t * 0.45 + ph) * 0.14;
+    heartPosAttr.array[i * 3 + 1] = heartBase[i * 3 + 1] + Math.sin(t * sp + ph) * 0.28;
+    heartPosAttr.array[i * 3 + 2] = heartBase[i * 3 + 2] + Math.cos(t * 0.40 + ph) * 0.14;
+  }
+  heartPosAttr.needsUpdate = true;
+
+  // grup berputar pelan biar hearts mengorbit
+  hearts.rotation.y = t * 0.035;
+  hearts.rotation.x = Math.sin(t * 0.18) * 0.05;
+
+  // pulse opacity + size biar "bernafas"
+  heartMat.opacity = 0.78 + Math.sin(t * 1.4) * 0.18;
+  heartMat.size = 0.32 + Math.sin(t * 1.1) * 0.025;
+
+  // cahaya berdenyut
+  fillLight.intensity = 17 + Math.sin(t * 1.3) * 2.5;
+  underGlow.intensity = 10 + Math.sin(t * 1.0 + 1.5) * 2.0;
+  topGlow.intensity = 9 + Math.sin(t * 1.7 + 0.5) * 1.8;
+  popLight.intensity = 12 + Math.sin(t * 1.9 + 0.3) * 2.2;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
